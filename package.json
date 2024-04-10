@@ -1,8 +1,12 @@
 {
   "name": "@open-terzo-settore/solar-icon-set",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "<img src=\"src/banner.png\">",
   "main": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrbubbaz/Solar-Icon-Set.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "trasform": "node ./src/trasform.js",
