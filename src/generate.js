@@ -3,13 +3,23 @@ const path = require('path');
 const slugify = require('slugify');
 const {JSDOM} = require('jsdom');
 const xmlSerializer = new (require('xmldom').XMLSerializer)();
+const cliProgress = require('cli-progress');
+
+// crea una nuova barra di avanzamento
+const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 
 // get the path to the icons folder
 const iconsPath = path.join(__dirname, './../icons/SVG');
 const distPath = path.join(__dirname, './../dist');
 const cssFilePath = path.join(distPath, 'icons.css');
 
-const classPrefix = 'sa';
+
+
+
+
+// inizia la barra di avanzamento
+progressBar.start(100, 0);
+
 
 const getIconsFromDir = (dir, category) => {
     let icons = [];
@@ -49,8 +59,12 @@ const getIconsFromDir = (dir, category) => {
                 slug: slugify(fileName, {lower: true, strict : true, remove: /[*+~.()'"!:@]/g}),
                 category: category.toLowerCase()
             });
+            // aggiorna la barra di avanzamento
+            progressBar.update((i / files.length) * 100);
         }
+
     }
+
     return icons;
 }
 
@@ -63,90 +77,11 @@ const iconsIterator = (dir) => {
             icons[files[i]] = getIconsFromDir(fullPath, files[i]);
         }
     }
+    progressBar.stop();
     return icons;
 }
 
 // list all icons in the first layer of directories in the iconsPath folder
 const icons = iconsIterator(iconsPath);
 
-let cssContent = '';
-
-
-const iconSizes = {
-    'xs': '12px',
-    'sm': '16px',
-    'md': '24px',
-    'lg': '32px',
-    'xl': '48px',
-    '2xl': '64px',
-    '3xl': '96px',
-    '4xl': '128px',
-    '5xl': '192px',
-    '6xl': '256px',
-    '7xl': '384px',
-    '8xl': '512px'
-}
-
-
-
-cssContent += `--icon-color: #000000;\n`;
-
-
-cssContent += `.${classPrefix} {\n`;
-cssContent += `  display: inline-block;\n`;
-cssContent += `  mask-size: contain;\n`;
-cssContent += `  -webkit-mask-size: contain;\n`;
-cssContent += `  mask-repeat: no-repeat;\n`;
-cssContent += `  -webkit-mask-repeat: no-repeat;\n`;
-cssContent += `  mask-position: center;\n`;
-cssContent += `  -webkit-mask-position: center;\n`;
-cssContent += ` background-color : var(--icon-color);\n`;
-cssContent += ` width: 24px;\n`;
-cssContent += ` height: 24px;\n`;
-
-cssContent += `}\n`;
-
-Object.entries(iconSizes).forEach(([size, value]) => {
-    cssContent += `.${classPrefix}-${size} {\n`;
-    cssContent += `  width: ${value};\n`;
-    cssContent += `  height: ${value};\n`;
-    cssContent += `}\n`;
-})
-
-for (const category in icons) {
-    for (const icon of icons[category]) {
-        const className = `.${classPrefix}.${classPrefix}-${icon.slug}.${icon.category}`;
-        cssContent += `${className} {\n`;
-        cssContent += `  mask-image: url('${icon.fullPath}');\n`;
-        cssContent += `  -webkit-mask-image: url('${icon.fullPath}');\n`;
-        cssContent += `}\n`;
-    }
-}
-
-fs.writeFileSync(cssFilePath, cssContent);
-
-
-// Generate HTML preview
-let htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" type="text/css" href="icons.css">
-</head>
-<body>
-`;
-
-for (const category in icons) {
-    for (const icon of icons[category]) {
-        const className = `${classPrefix} ${icon.slug} ${icon.category}`;
-        htmlContent += `<div class="${className}"></div>\n`;
-    }
-}
-
-htmlContent += `
-</body>
-</html>
-`;
-
-// Write HTML content to a file
-fs.writeFileSync(path.join(distPath, 'preview.html'), htmlContent);
+fs.writeFileSync(path.join(__dirname, 'list.json'), JSON.stringify(icons, null, 2));
