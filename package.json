@@ -1,0 +1,21 @@
+{
+  "name": "@open-terzo-settore/solar-icon-set",
+  "version": "1.0.1",
+  "description": "<img src=\"src/banner.png\">",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "trasform": "node ./src/trasform.js",
+    "preview": "node ./src/preview.js",
+    "release": "changelogen --release && npm publish && git push --follow-tags"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cli-progress": "^3.12.0",
+    "jsdom": "^24.0.0",
+    "slugify": "^1.6.6",
+    "xmldom": "^0.6.0",
+    "changelogen": "^0.5.5"
+  }
+}
